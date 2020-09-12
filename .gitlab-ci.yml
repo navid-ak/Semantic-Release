@@ -1,17 +1,38 @@
 stages:
-    - release
-    
-release:
-    image: node:13
-    stage: release
-    only:
-        refs:
-        - master
-        - alpha
-        # This matches maintenance branches
-        - /^(([0-9]+)\.)?([0-9]+)\.x/
-        # This matches pre-releases
-        - /^([0-9]+)\.([0-9]+)\.([0-9]+)(?:-([0-9A-Za-z-]+(?:\.[0-9A-Za-z-]+)*))?(?:\+[0-9A-Za-z-]+)?$/ 
+    - generate-env-vars
+    - version
+    - tag-latest
+  
+variables:
+    IMAGE_NAME: $CI_REGISTRY/$CI_PROJECT_NAMESPACE/$CI_PROJECT_NAME
+
+generate-env-vars:
+    stage: generate-env-vars
     script:
-        - npm install @semantic-release/gitlab
-        - npx semantic-release
+        - TAG=$(git describe --tags --always)
+        - echo "export TAG=$TAG" > .variables
+        - echo "export IMAGE=$IMAGE_NAME:$TAG" >> .variables
+        - cat .variables
+    artifacts:
+        paths:
+        - .variables
+
+version:
+    stage: version
+    image: mrooding/gitlab-semantic-versioning:1.0.0
+    script:
+        - python3 /version-update/version-update.py
+    only:
+        - master
+
+tag-latest:
+    stage: tag-latest
+    image: docker:18.06.1-ce
+    before_script:
+        - source .variables
+    script:
+        - docker pull $IMAGE
+        - docker tag $IMAGE $IMAGE_NAME:latest
+        - docker push $IMAGE_NAME:latest
+    only:
+        - tag
