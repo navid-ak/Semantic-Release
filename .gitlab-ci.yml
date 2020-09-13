@@ -8,9 +8,5 @@ release:
         refs:
         - master
     script:
-        - touch CHANGELOG.md
-        - npm install @semantic-release/gitlab  @semantic-release/changelog
-        - npx semantic-release
-    artifacts:
-        paths:
-        - CHANGELOG.md
+        - npm install @semantic-release/gitlab
+        - npx semantic-release --dry-run
