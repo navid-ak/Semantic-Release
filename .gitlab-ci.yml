@@ -1,38 +1,52 @@
-stages:
-    - generate-env-vars
-    - version
-    - tag-latest
+# stages:
+#     - generate-env-vars
+#     - version
+#     - tag-latest
   
-variables:
-    IMAGE_NAME: $CI_REGISTRY/$CI_PROJECT_NAMESPACE/$CI_PROJECT_NAME
+# variables:
+#     IMAGE_NAME: $CI_REGISTRY/$CI_PROJECT_NAMESPACE/$CI_PROJECT_NAME
 
-generate-env-vars:
-    stage: generate-env-vars
-    script:
-        - TAG=$(git describe --tags --always)
-        - echo "export TAG=$TAG" > .variables
-        - echo "export IMAGE=$IMAGE_NAME:$TAG" >> .variables
-        - cat .variables
-    artifacts:
-        paths:
-        - .variables
+# generate-env-vars:
+#     stage: generate-env-vars
+#     script:
+#         - TAG=$(git describe --tags --always)
+#         - echo "export TAG=$TAG" > .variables
+#         - echo "export IMAGE=$IMAGE_NAME:$TAG" >> .variables
+#         - cat .variables
+#     artifacts:
+#         paths:
+#         - .variables
 
-version:
-    stage: version
-    image: mrooding/gitlab-semantic-versioning:1.0.0
-    script:
-        - python3 /version-update/version-update.py
-    only:
-        - master
+# version:
+#     stage: version
+#     image: mrooding/gitlab-semantic-versioning:1.0.0
+#     script:
+#         - python3 /version-update/version-update.py
+#     only:
+#         - master
 
-tag-latest:
-    stage: tag-latest
-    image: docker:18.06.1-ce
+# tag-latest:
+#     stage: tag-latest
+#     image: docker:18.06.1-ce
+#     before_script:
+#         - source .variables
+#     script:
+#         - docker pull $IMAGE
+#         - docker tag $IMAGE $IMAGE_NAME:latest
+#         - docker push $IMAGE_NAME:latest
+#     only:
+#         - tag
+
+stages:
+    - release
+
+release:
+    image: node:12-buster-slim
+    stage: release
     before_script:
-        - source .variables
+      - apt-get update && apt-get install -y --no-install-recommends git-core ca-certificates
+      - npm install -g semantic-release @semantic-release/gitlab
     script:
-        - docker pull $IMAGE
-        - docker tag $IMAGE $IMAGE_NAME:latest
-        - docker push $IMAGE_NAME:latest
+      - semantic-release
     only:
-        - tag
+      - master

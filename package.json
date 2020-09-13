@@ -33,7 +33,7 @@
     ]
   },
   "devDependencies": {
-    "release-it": "^14.0.2"
+    "release-it": "^15.0.0"
   },
   "release-it": {
     "git": {
