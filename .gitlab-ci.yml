@@ -8,5 +8,5 @@ release:
         refs:
         - master
     script:
-        - npm install @semantic-release/gitlab @semantic-release/exec
+        - npm install @semantic-release/gitlab @semantic-release/exec @semantic-release/git
         - npx semantic-release
