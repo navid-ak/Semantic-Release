@@ -1,8 +1,8 @@
 plugins:
     - "@semantic-release/commit-analyzer"
     - "@semantic-release/release-notes-generator"
-    - - "@semantic-release/npm"
-      - npmPublish: false
+    - - "@semantic-release/exec"
+      - cmd: npm version ${nextRelease.version}
     - "@semantic-release/gitlab"
 branches:
     - "master"
