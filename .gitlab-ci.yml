@@ -8,5 +8,5 @@ release:
         refs:
         - master
     script:
-        - npm install --only=dev
+        - npm install
         - npx semantic-release
